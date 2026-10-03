@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Exam - SecureAssess</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        /* Hide scrollbars during exam */
+        body { overflow: hidden; }
+        
+        /* User select none to discourage simple selection */
+        .no-select {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 h-screen flex flex-col no-select">
+    
+    <!-- Exam Header -->
+    <header class="bg-slate-900 border-b border-slate-700 h-16 shrink-0 z-50 px-6 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <i class="fa-solid fa-shield-halved text-indigo-500"></i>
+            <span class="font-bold text-white tracking-tight">SecureAssess</span>
+        </div>
+        
+        <!-- Timer -->
+        <div class="glass-panel px-6 py-2 border-indigo-500/30 flex items-center gap-3">
+            <i class="fa-regular fa-clock text-indigo-400"></i>
+            <span id="timer-display" class="font-mono text-xl font-bold text-white tracking-wider">--:--:--</span>
+        </div>
+        
+        <!-- Status & Submit -->
+        <div class="flex items-center gap-4">
+            <div id="save-status" class="text-sm text-slate-400 flex items-center gap-2 transition-opacity">
+                <i class="fa-solid fa-cloud"></i> <span>Ready</span>
+            </div>
+            <button id="btn-submit-exam" class="btn-danger flex items-center gap-2 px-6">
+                <i class="fa-solid fa-paper-plane text-sm"></i> Finish Exam
+            </button>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Main Question Area -->
+        <main class="flex-1 p-8 overflow-y-auto relative flex flex-col">
+        <!-- Fullscreen Entry Overlay — fixed, covers entire viewport -->
+        <div id="fullscreen-overlay" class="fixed inset-0 flex flex-col items-center justify-center bg-slate-900/95 backdrop-blur-sm z-[200] hidden">
+            <div class="glass-panel p-10 max-w-md w-full text-center border-indigo-500/40 mx-4">
+                <i class="fa-solid fa-expand text-5xl text-indigo-400 mb-5"></i>
+                <h2 class="text-2xl font-bold text-white mb-2">Ready to Begin?</h2>
+                <p class="text-slate-400 text-sm mb-6">The exam requires <strong class="text-white">Fullscreen Mode</strong>.<br>Click the button below to enter and start.</p>
+                <div class="text-left bg-slate-800/80 border border-slate-700 rounded-xl p-4 mb-6 space-y-2 text-sm text-slate-300">
+                    <p><i class="fa-solid fa-triangle-exclamation text-amber-400 mr-2"></i>Do <strong>not</strong> switch tabs or minimize</p>
+                    <p><i class="fa-solid fa-triangle-exclamation text-amber-400 mr-2"></i>Copy, paste and right-click are <strong>disabled</strong></p>
+                    <p><i class="fa-solid fa-triangle-exclamation text-amber-400 mr-2"></i>All violations are recorded and affect your Risk Score</p>
+                </div>
+                <button id="btn-enter-fullscreen" class="btn-primary w-full py-3 text-base font-semibold flex items-center justify-center gap-3 bg-indigo-600 hover:bg-indigo-500">
+                    <i class="fa-solid fa-play"></i> Enter Fullscreen &amp; Start Exam
+                </button>
+                <p class="text-xs text-slate-500 mt-3">Timer starts only after you click the button above.</p>
+            </div>
+        </div>
+
+        <div id="loader" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-900 z-10">
+                <i class="fa-solid fa-shield-halved fa-beat text-4xl text-indigo-500 mb-4"></i>
+                <p class="text-slate-400 font-mono" id="loading-text">Initializing Secure Environment...</p>
+            </div>
+            
+            <div id="exam-content" class="max-w-4xl mx-auto w-full flex-1 flex flex-col hidden">
+                <div class="mb-6 pb-6 border-b border-slate-800 flex justify-between items-end">
+                    <div>
+                        <span class="text-indigo-400 font-bold tracking-wider text-sm uppercase mb-1 block" id="q-number">Question -</span>
+                        <h2 class="text-xl font-medium text-white leading-relaxed" id="q-text">Loading...</h2>
+                    </div>
+                    <div class="shrink-0 bg-slate-800 px-3 py-1 rounded-md border border-slate-700">
+                        <span class="text-slate-400 text-sm font-medium"><span id="q-marks">-</span> marks</span>
+                    </div>
+                </div>
+
+                <!-- Options -->
+                <div id="options-container" class="space-y-4 flex-1">
+                    <!-- Options injected via JS -->
+                </div>
+
+                <!-- Footer Nav -->
+                <div class="mt-8 pt-6 border-t border-slate-800 flex justify-between items-center shrink-0">
+                    <button id="btn-prev" class="btn-secondary flex items-center gap-2 px-6 py-2.5">
+                        <i class="fa-solid fa-arrow-left text-sm"></i> Previous
+                    </button>
+                    
+                    <button id="btn-clear" class="text-slate-400 hover:text-slate-200 text-sm underline underline-offset-4">
+                        Clear Selection
+                    </button>
+
+                    <button id="btn-next" class="btn-primary flex items-center gap-2 px-8 py-2.5">
+                        Save & Next <i class="fa-solid fa-arrow-right text-sm"></i>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Sidebar: Question Navigator -->
+        <aside class="w-80 bg-slate-800/50 border-l border-slate-700 flex flex-col shrink-0">
+            <div class="p-4 border-b border-slate-700">
+                <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-4">Question Navigator</h3>
+                
+                <!-- Legend -->
+                <div class="flex flex-wrap gap-3 text-xs text-slate-400 mb-4">
+                    <div class="flex items-center gap-1"><div class="w-3 h-3 rounded-full bg-slate-700 border border-slate-600"></div> Unanswered</div>
+                    <div class="flex items-center gap-1"><div class="w-3 h-3 rounded-full bg-indigo-500 border border-indigo-400"></div> Answered</div>
+                    <div class="flex items-center gap-1"><div class="w-3 h-3 rounded-full bg-slate-800 border-2 border-cyan-400"></div> Current</div>
+                </div>
+            </div>
+            
+            <div class="p-4 flex-1 overflow-y-auto">
+                <div id="navigator-grid" class="grid grid-cols-5 gap-2">
+                    <!-- Nav buttons injected via JS -->
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Submit Confirmation Modal -->
+    <div id="submit-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center">
+        <div class="glass-panel p-8 max-w-md w-full mx-4 text-center">
+            <i class="fa-solid fa-clipboard-check text-5xl text-indigo-400 mb-4"></i>
+            <h2 class="text-2xl font-bold text-white mb-2">Submit Examination?</h2>
+            <p class="text-slate-400 mb-6">You will not be able to modify your answers after submission.</p>
+            
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <div class="bg-slate-800 rounded-lg p-3 border border-slate-700">
+                    <div class="text-indigo-400 text-2xl font-bold" id="modal-answered">-</div>
+                    <div class="text-slate-400 text-xs uppercase tracking-wider mt-1">Answered</div>
+                </div>
+                <div class="bg-slate-800 rounded-lg p-3 border border-slate-700">
+                    <div class="text-amber-400 text-2xl font-bold" id="modal-unanswered">-</div>
+                    <div class="text-slate-400 text-xs uppercase tracking-wider mt-1">Unanswered</div>
+                </div>
+            </div>
+            
+            <div class="flex gap-4">
+                <button id="modal-cancel-submit" class="flex-1 btn-secondary py-3">Resume</button>
+                <button id="modal-confirm-submit" class="flex-1 btn-danger py-3">Confirm Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast container -->
+    <div id="toast-container"></div>
+
+    <script type="module" src="js/exam.js"></script>
+</body>
+</html>

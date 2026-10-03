@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exams - SecureAssess</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body class="bg-slate-900 min-h-screen">
+    
+    <!-- Navbar -->
+    <nav class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-indigo-500 text-xl"></i>
+                    <span class="font-bold text-lg text-white tracking-tight">SecureAssess</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="dashboard.html" class="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                    <a href="exams.html" class="text-white px-3 py-2 rounded-md text-sm font-medium bg-slate-700">Exams</a>
+                    <div class="h-6 w-px bg-slate-600 mx-2"></div>
+                    <a href="profile.html" class="text-slate-300 hover:text-white" title="Profile"><i class="fa-solid fa-user-circle text-xl"></i></a>
+                    <button id="logout-btn" class="text-slate-400 hover:text-red-400 ml-2" title="Logout"><i class="fa-solid fa-sign-out-alt text-xl"></i></button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-3xl font-bold text-white">Examination Center</h1>
+                <p class="text-slate-400 mt-1">Available tests for your enrollment</p>
+            </div>
+            <div class="relative">
+                <input type="text" id="search-exams" placeholder="Search exams..." class="input-field pl-10 py-1.5 w-64 bg-slate-800">
+                <i class="fa-solid fa-search absolute left-3 top-2.5 text-slate-500"></i>
+            </div>
+        </div>
+
+        <!-- Error/Loading -->
+        <div id="status-container" class="mb-6 hidden">
+            <div id="status-msg" class="p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm"></div>
+        </div>
+
+        <div id="loader" class="flex flex-col items-center justify-center py-20">
+            <i class="fa-solid fa-circle-notch fa-spin text-4xl text-indigo-500 mb-4"></i>
+            <p class="text-slate-400">Loading exams securely...</p>
+        </div>
+
+        <!-- Exams Grid -->
+        <div id="exams-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
+            <!-- Populated by JS -->
+        </div>
+        
+        <div id="no-exams" class="hidden text-center py-20 glass-panel">
+            <i class="fa-solid fa-folder-open text-5xl text-slate-600 mb-4"></i>
+            <h3 class="text-xl font-medium text-slate-300">No Exams Available</h3>
+            <p class="text-slate-500 mt-2">There are currently no published exams for you to take.</p>
+        </div>
+
+    </main>
+
+    <!-- Pre-exam Modal -->
+    <div id="start-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center">
+        <div class="glass-panel p-8 max-w-lg w-full mx-4 border-indigo-500/50 glow-border">
+            <h2 class="text-2xl font-bold text-white mb-4" id="modal-title">Exam Title</h2>
+            <div class="bg-slate-900/80 p-4 rounded-lg mb-6 border border-slate-700">
+                <h4 class="text-sm font-bold text-red-400 mb-2 uppercase flex items-center gap-2">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Security Rules
+                </h4>
+                <ul class="text-sm text-slate-300 space-y-2 list-disc list-inside">
+                    <li>This exam requires <strong>Fullscreen Mode</strong>.</li>
+                    <li>Do not switch tabs or minimize the browser.</li>
+                    <li>Copy, paste, and developer tools are disabled.</li>
+                    <li>All infractions are recorded and affect your Risk Score.</li>
+                </ul>
+            </div>
+            <p class="text-slate-400 text-sm mb-6">Duration: <span id="modal-duration" class="font-bold text-white"></span> mins | Questions: <span id="modal-questions" class="font-bold text-white"></span></p>
+            
+            <div class="flex gap-4 justify-end">
+                <button id="modal-cancel" class="btn-secondary">Cancel</button>
+                <button id="modal-start-btn" class="btn-primary flex items-center gap-2">
+                    <i class="fa-solid fa-play text-sm"></i> Enter Secure Mode
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast container -->
+    <div id="toast-container"></div>
+
+    <script type="module" src="js/exams.js"></script>
+</body>
+</html>

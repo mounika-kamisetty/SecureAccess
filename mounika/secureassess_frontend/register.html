@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - SecureAssess</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body class="bg-slate-900 min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative">
+    
+    <!-- Background Decor -->
+    <div class="absolute top-[-10%] right-[-10%] w-96 h-96 bg-indigo-600 rounded-full mix-blend-multiply filter blur-[128px] opacity-20"></div>
+
+    <div class="glass-panel w-full max-w-md p-8 relative z-10 animate-fade-in">
+        <div class="text-center mb-8">
+            <h2 class="text-2xl font-bold text-white">Create Account</h2>
+            <p class="text-slate-400 mt-2 text-sm">Join SecureAssess today</p>
+        </div>
+
+        <div id="error-msg" class="hidden mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center"></div>
+        <div id="success-msg" class="hidden mb-4 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm text-center">Registration successful! Redirecting...</div>
+
+        <form id="register-form" class="space-y-5">
+            <div>
+                <label for="name" class="block text-sm font-medium text-slate-300 mb-1">Full Name</label>
+                <input id="name" name="name" type="text" required class="input-field" placeholder="John Doe">
+            </div>
+
+            <div>
+                <label for="email" class="block text-sm font-medium text-slate-300 mb-1">Email Address</label>
+                <input id="email" name="email" type="email" required class="input-field" placeholder="student@example.com">
+            </div>
+
+            <div>
+                <label for="role" class="block text-sm font-medium text-slate-300 mb-1">Role</label>
+                <select id="role" name="role" required class="input-field appearance-none bg-slate-900/50">
+                    <option value="student">Student</option>
+                    <option value="examiner">Examiner</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="password" class="block text-sm font-medium text-slate-300 mb-1">Password</label>
+                <div class="relative">
+                    <input id="password" name="password" type="password" required class="input-field pr-10" placeholder="••••••••">
+                </div>
+                <!-- Password Strength -->
+                <div class="mt-2 flex gap-1 h-1.5 w-full bg-slate-700 rounded-full overflow-hidden">
+                    <div id="strength-bar-1" class="h-full w-1/3 transition-colors duration-300"></div>
+                    <div id="strength-bar-2" class="h-full w-1/3 transition-colors duration-300"></div>
+                    <div id="strength-bar-3" class="h-full w-1/3 transition-colors duration-300"></div>
+                </div>
+                <p id="strength-text" class="text-xs mt-1 text-slate-400 text-right h-4"></p>
+            </div>
+
+            <div>
+                <label for="confirm-password" class="block text-sm font-medium text-slate-300 mb-1">Confirm Password</label>
+                <input id="confirm-password" name="confirm-password" type="password" required class="input-field" placeholder="••••••••">
+                <p id="match-text" class="text-xs mt-1 text-red-400 hidden">Passwords do not match</p>
+            </div>
+
+            <button type="submit" id="submit-btn" class="w-full btn-primary flex justify-center py-2.5 mt-6">
+                <span id="btn-text">Register</span>
+                <i id="btn-loader" class="fa-solid fa-circle-notch fa-spin hidden ml-2 mt-1"></i>
+            </button>
+        </form>
+
+        <p class="mt-6 text-center text-sm text-slate-400">
+            Already have an account? 
+            <a href="login.html" class="font-medium text-indigo-400 hover:text-indigo-300">Sign in</a>
+        </p>
+    </div>
+
+    <script type="module">
+        import auth from './js/auth.js';
+        import guard from './js/guard.js';
+
+        // Redirect if already logged in
+        guard.redirectIfAuthenticated();
+
+        // Password Strength Logic
+        const pwdInput = document.getElementById('password');
+        const confirmInput = document.getElementById('confirm-password');
+        const strengthText = document.getElementById('strength-text');
+        const matchText = document.getElementById('match-text');
+        
+        const b1 = document.getElementById('strength-bar-1');
+        const b2 = document.getElementById('strength-bar-2');
+        const b3 = document.getElementById('strength-bar-3');
+
+        function checkStrength(pwd) {
+            let strength = 0;
+            if (pwd.length >= 8) strength++;
+            if (pwd.match(/[A-Z]/) && pwd.match(/[a-z]/)) strength++;
+            if (pwd.match(/[0-9]/) && pwd.match(/[^A-Za-z0-9]/)) strength++;
+            return strength;
+        }
+
+        pwdInput.addEventListener('input', () => {
+            const val = pwdInput.value;
+            const str = checkStrength(val);
+            
+            // Reset colors
+            b1.className = 'h-full w-1/3 transition-colors duration-300';
+            b2.className = 'h-full w-1/3 transition-colors duration-300';
+            b3.className = 'h-full w-1/3 transition-colors duration-300';
+
+            if (val.length === 0) {
+                strengthText.textContent = '';
+            } else if (str === 0 || str === 1) {
+                b1.classList.add('bg-red-500');
+                strengthText.textContent = 'Weak (Use mixed case, numbers & symbols)';
+                strengthText.className = 'text-xs mt-1 text-red-400 text-right h-4';
+            } else if (str === 2) {
+                b1.classList.add('bg-yellow-500');
+                b2.classList.add('bg-yellow-500');
+                strengthText.textContent = 'Medium';
+                strengthText.className = 'text-xs mt-1 text-yellow-400 text-right h-4';
+            } else {
+                b1.classList.add('bg-green-500');
+                b2.classList.add('bg-green-500');
+                b3.classList.add('bg-green-500');
+                strengthText.textContent = 'Strong';
+                strengthText.className = 'text-xs mt-1 text-green-400 text-right h-4';
+            }
+
+            checkMatch();
+        });
+
+        function checkMatch() {
+            if (confirmInput.value.length > 0 && confirmInput.value !== pwdInput.value) {
+                matchText.classList.remove('hidden');
+            } else {
+                matchText.classList.add('hidden');
+            }
+        }
+        confirmInput.addEventListener('input', checkMatch);
+
+        // Form Submit
+        const form = document.getElementById('register-form');
+        const errorDiv = document.getElementById('error-msg');
+        const successDiv = document.getElementById('success-msg');
+        const submitBtn = document.getElementById('submit-btn');
+        const btnText = document.getElementById('btn-text');
+        const btnLoader = document.getElementById('btn-loader');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (pwdInput.value !== confirmInput.value) {
+                errorDiv.textContent = "Passwords do not match.";
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            if (checkStrength(pwdInput.value) < 2) {
+                errorDiv.textContent = "Please choose a stronger password.";
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            errorDiv.classList.add('hidden');
+            submitBtn.disabled = true;
+            btnText.textContent = "Registering...";
+            btnLoader.classList.remove('hidden');
+
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = pwdInput.value;
+            const role = document.getElementById('role').value;
+
+            const result = await auth.register(name, email, password, role);
+
+            if (result.success) {
+                successDiv.classList.remove('hidden');
+                btnText.textContent = "Success";
+                btnLoader.classList.add('hidden');
+                
+                // Auto login or redirect to login
+                setTimeout(() => {
+                    window.location.href = '/login.html';
+                }, 1500);
+            } else {
+                submitBtn.disabled = false;
+                btnText.textContent = "Register";
+                btnLoader.classList.add('hidden');
+                
+                errorDiv.textContent = result.message;
+                errorDiv.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

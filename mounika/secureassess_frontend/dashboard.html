@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - SecureAssess</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body class="bg-slate-900 min-h-screen">
+    
+    <!-- Navbar -->
+    <nav class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-indigo-500 text-xl"></i>
+                    <span class="font-bold text-lg text-white tracking-tight">SecureAssess</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="dashboard.html" class="text-white px-3 py-2 rounded-md text-sm font-medium bg-slate-700">Dashboard</a>
+                    <a href="exams.html" class="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Exams</a>
+                    <div class="h-6 w-px bg-slate-600 mx-2"></div>
+                    <a href="profile.html" class="text-slate-300 hover:text-white" title="Profile"><i class="fa-solid fa-user-circle text-xl"></i></a>
+                    <button id="logout-btn" class="text-slate-400 hover:text-red-400 ml-2" title="Logout"><i class="fa-solid fa-sign-out-alt text-xl"></i></button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <div class="flex justify-between items-end mb-8 animate-fade-in">
+            <div>
+                <h1 class="text-3xl font-bold text-white">Student Dashboard</h1>
+                <p class="text-slate-400 mt-1" id="welcome-text">Loading...</p>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 animate-fade-in" style="animation-delay: 0.1s;">
+            <!-- Stat 1 -->
+            <div class="glass-panel p-6 border-indigo-500/30">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-slate-400">Available Exams</p>
+                        <p class="text-3xl font-bold text-white mt-1" id="stat-available">-</p>
+                    </div>
+                    <div class="p-3 bg-indigo-500/20 rounded-lg text-indigo-400">
+                        <i class="fa-solid fa-file-signature text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stat 2 -->
+            <div class="glass-panel p-6 border-cyan-500/30">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-slate-400">Completed Exams</p>
+                        <p class="text-3xl font-bold text-white mt-1" id="stat-completed">-</p>
+                    </div>
+                    <div class="p-3 bg-cyan-500/20 rounded-lg text-cyan-400">
+                        <i class="fa-solid fa-check-double text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stat 3 -->
+            <div class="glass-panel p-6 border-emerald-500/30">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-slate-400">Average Score</p>
+                        <p class="text-3xl font-bold text-white mt-1" id="stat-avg-score">-%</p>
+                    </div>
+                    <div class="p-3 bg-emerald-500/20 rounded-lg text-emerald-400">
+                        <i class="fa-solid fa-chart-pie text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stat 4 -->
+            <div class="glass-panel p-6 border-amber-500/30">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-slate-400">Overall Risk Status</p>
+                        <p class="text-xl font-bold text-white mt-1" id="stat-risk">-</p>
+                    </div>
+                    <div class="p-3 bg-amber-500/20 rounded-lg text-amber-400">
+                        <i class="fa-solid fa-shield-virus text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-fade-in" style="animation-delay: 0.2s;">
+            <!-- Available Exams List -->
+            <div class="glass-panel p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-white">Upcoming / Available</h2>
+                    <a href="exams.html" class="text-sm text-indigo-400 hover:text-indigo-300">View All</a>
+                </div>
+                <div id="available-exams-container" class="space-y-4">
+                    <div class="text-center py-8 text-slate-500">
+                        <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2"></i>
+                        <p>Loading exams...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Results List -->
+            <div class="glass-panel p-6">
+                <h2 class="text-xl font-bold text-white mb-4">Recent Results</h2>
+                <div id="recent-results-container" class="space-y-4">
+                    <div class="text-center py-8 text-slate-500">
+                        <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2"></i>
+                        <p>Loading results...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script type="module" src="js/dashboard.js"></script>
+</body>
+</html>

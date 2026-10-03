@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - SecureAssess</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body class="bg-slate-900 min-h-screen flex flex-col">
+    
+    <nav class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-purple-500 text-xl"></i>
+                    <span class="font-bold text-lg text-white tracking-tight">SecureAssess <span class="text-purple-500 text-sm ml-1 bg-purple-500/20 px-2 py-0.5 rounded">Admin</span></span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="admin.html" class="text-white px-3 py-2 rounded-md text-sm font-medium bg-slate-700">Dashboard</a>
+                    <a href="profile.html" class="text-slate-300 hover:text-white" title="Profile"><i class="fa-solid fa-user-circle text-xl"></i></a>
+                    <button id="logout-btn" class="text-slate-400 hover:text-red-400 ml-2" title="Logout"><i class="fa-solid fa-sign-out-alt text-xl"></i></button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+        
+        <div class="mb-8 animate-fade-in">
+            <h1 class="text-3xl font-bold text-white">System Administration</h1>
+            <p class="text-slate-400 mt-1" id="welcome-text">Loading...</p>
+        </div>
+
+        <!-- Global Stats -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 animate-fade-in" style="animation-delay: 0.1s;">
+            <div class="glass-panel p-6 border-blue-500/30">
+                <p class="text-sm font-medium text-slate-400">Total Users</p>
+                <div class="flex items-end justify-between mt-2">
+                    <p class="text-3xl font-bold text-white" id="stat-users">-</p>
+                    <i class="fa-solid fa-users text-2xl text-blue-500/50"></i>
+                </div>
+            </div>
+            <div class="glass-panel p-6 border-emerald-500/30">
+                <p class="text-sm font-medium text-slate-400">Total Exams</p>
+                <div class="flex items-end justify-between mt-2">
+                    <p class="text-3xl font-bold text-white" id="stat-exams">-</p>
+                    <i class="fa-solid fa-file-signature text-2xl text-emerald-500/50"></i>
+                </div>
+            </div>
+            <div class="glass-panel p-6 border-indigo-500/30">
+                <p class="text-sm font-medium text-slate-400">Total Attempts</p>
+                <div class="flex items-end justify-between mt-2">
+                    <p class="text-3xl font-bold text-white" id="stat-attempts">-</p>
+                    <i class="fa-solid fa-graduation-cap text-2xl text-indigo-500/50"></i>
+                </div>
+            </div>
+            <div class="glass-panel p-6 border-red-500/30">
+                <p class="text-sm font-medium text-slate-400">Avg System Risk</p>
+                <div class="flex items-end justify-between mt-2">
+                    <p class="text-3xl font-bold text-white" id="stat-risk">-</p>
+                    <i class="fa-solid fa-shield-virus text-2xl text-red-500/50"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-fade-in" style="animation-delay: 0.2s;">
+            <!-- User Management -->
+            <div class="glass-panel p-6 flex flex-col h-[500px]">
+                <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-700">
+                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-user-gear text-purple-400"></i> User Directory
+                    </h2>
+                </div>
+                <div class="flex-1 overflow-y-auto pr-2" id="users-container">
+                    <div class="text-center py-8 text-slate-500">
+                        <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2"></i>
+                        <p>Loading users...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Audit Logs -->
+            <div class="glass-panel p-6 flex flex-col h-[500px]">
+                <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-700">
+                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-purple-400"></i> System Audit Logs
+                    </h2>
+                </div>
+                <div class="flex-1 overflow-y-auto pr-2 space-y-3" id="audit-container">
+                    <div class="text-center py-8 text-slate-500">
+                        <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2"></i>
+                        <p>Loading audit logs...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="toast-container"></div>
+
+    <script type="module" src="js/admin.js"></script>
+</body>
+</html>

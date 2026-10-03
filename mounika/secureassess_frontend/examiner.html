@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examiner Dashboard - SecureAssess</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body class="bg-slate-900 min-h-screen flex flex-col">
+    
+    <nav class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-emerald-500 text-xl"></i>
+                    <span class="font-bold text-lg text-white tracking-tight">SecureAssess <span class="text-emerald-500 text-sm ml-1 bg-emerald-500/20 px-2 py-0.5 rounded">Examiner</span></span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="examiner.html" class="text-white px-3 py-2 rounded-md text-sm font-medium bg-slate-700">Dashboard</a>
+                    <a href="profile.html" class="text-slate-300 hover:text-white" title="Profile"><i class="fa-solid fa-user-circle text-xl"></i></a>
+                    <button id="logout-btn" class="text-slate-400 hover:text-red-400 ml-2" title="Logout"><i class="fa-solid fa-sign-out-alt text-xl"></i></button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+        <div class="flex justify-between items-end mb-8 animate-fade-in">
+            <div>
+                <h1 class="text-3xl font-bold text-white">Examiner Portal</h1>
+                <p class="text-slate-400 mt-1" id="welcome-text">Loading...</p>
+            </div>
+            <div>
+                <button id="btn-create-exam" class="btn-primary flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20">
+                    <i class="fa-solid fa-plus"></i> Create Exam
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in" style="animation-delay: 0.1s;">
+            <div class="lg:col-span-2 space-y-6">
+                <div class="glass-panel p-6">
+                    <h2 class="text-xl font-bold text-white mb-4 border-b border-slate-700 pb-2">My Exams</h2>
+                    <div id="exams-container" class="space-y-4">
+                        <div class="text-center py-8 text-slate-500">
+                            <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2"></i>
+                            <p>Loading exams...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="space-y-6">
+                <div class="glass-panel p-6 border-red-500/30">
+                    <h2 class="text-xl font-bold text-white mb-4 border-b border-slate-700 pb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-triangle-exclamation text-red-400"></i> Requires Review
+                    </h2>
+                    <p class="text-sm text-slate-400 mb-4">High-risk attempts that need attention.</p>
+                    <div id="risk-container" class="space-y-3">
+                        <div class="text-center py-4 text-slate-500 text-sm">No high risk attempts found.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ====================== CREATE EXAM MODAL (WIZARD) ====================== -->
+    <div id="create-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <div class="glass-panel max-w-2xl w-full max-h-[92vh] flex flex-col bg-slate-900 border-emerald-500/30">
+            
+            <!-- Modal Header -->
+            <div class="p-6 border-b border-slate-700 flex justify-between items-center shrink-0">
+                <div>
+                    <h2 class="text-2xl font-bold text-white">Create New Exam</h2>
+                    <p id="wizard-subtitle" class="text-slate-400 text-sm mt-0.5">Step 1 of 3 — Exam Details</p>
+                </div>
+                <button id="modal-close" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="px-6 pt-4 shrink-0">
+                <div class="w-full bg-slate-700 rounded-full h-1.5">
+                    <div id="wizard-progress" class="bg-emerald-500 h-1.5 rounded-full transition-all duration-500" style="width: 33%"></div>
+                </div>
+            </div>
+
+            <!-- Step Content -->
+            <div class="p-6 overflow-y-auto flex-1">
+
+                <!-- STEP 1: Exam Details -->
+                <div id="step-1" class="space-y-5">
+                    <h3 class="font-bold text-emerald-400 flex items-center gap-2"><i class="fa-solid fa-clipboard-list"></i> Exam Information</h3>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Exam Title <span class="text-red-400">*</span></label>
+                        <input type="text" id="ex-title" class="input-field" placeholder="E.g., Midterm: Data Structures">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Duration (minutes) <span class="text-red-400">*</span></label>
+                            <input type="number" id="ex-duration" min="1" max="180" class="input-field" placeholder="60">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Number of Questions <span class="text-red-400">*</span></label>
+                            <input type="number" id="ex-num-questions" min="1" max="50" class="input-field" placeholder="E.g., 5">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Description</label>
+                        <textarea id="ex-desc" class="input-field h-20" placeholder="Optional description for students..."></textarea>
+                    </div>
+                </div>
+
+                <!-- STEP 2: Question Wizard (one at a time) -->
+                <div id="step-2" class="hidden">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-emerald-400 flex items-center gap-2">
+                            <i class="fa-solid fa-circle-question"></i>
+                            Question <span id="q-wizard-current">1</span> of <span id="q-wizard-total">5</span>
+                        </h3>
+                        <div class="flex gap-1" id="q-dot-nav">
+                            <!-- dots injected by JS -->
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 border border-slate-700 rounded-xl p-5 bg-slate-800/50">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Question Text <span class="text-red-400">*</span></label>
+                            <textarea id="q-text-input" class="input-field h-20" placeholder="Type your question here..."></textarea>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-1">Question Type</label>
+                                <select id="q-type-input" class="input-field">
+                                    <option value="mcq">MCQ (4 Options)</option>
+                                    <option value="true_false">True / False</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-1">Marks <span class="text-red-400">*</span></label>
+                                <input type="number" id="q-marks-input" min="1" value="5" class="input-field">
+                            </div>
+                        </div>
+
+                        <!-- MCQ Options -->
+                        <div id="mcq-options" class="space-y-3">
+                            <label class="block text-sm font-medium text-slate-300">Options — select the correct answer</label>
+                            <div class="space-y-2" id="options-list">
+                                <!-- A, B, C, D injected by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <p id="q-save-msg" class="text-emerald-400 text-sm mt-3 hidden"><i class="fa-solid fa-check"></i> Question saved. Move to next.</p>
+                    <p id="q-error-msg" class="text-red-400 text-sm mt-3 hidden"></p>
+                </div>
+
+                <!-- STEP 3: Review & Publish -->
+                <div id="step-3" class="hidden">
+                    <h3 class="font-bold text-emerald-400 flex items-center gap-2 mb-4"><i class="fa-solid fa-eye"></i> Review Before Saving</h3>
+                    <div id="review-container" class="space-y-3 max-h-80 overflow-y-auto pr-1"></div>
+                    <div class="mt-4 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+                        <p class="text-slate-300 text-sm"><i class="fa-solid fa-info-circle text-indigo-400 mr-2"></i>The exam will be saved as a <span class="text-white font-bold">Draft</span>. You can publish it from your dashboard when ready.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Buttons -->
+            <div class="p-6 border-t border-slate-700 flex justify-between items-center shrink-0 bg-slate-900 rounded-b-xl">
+                <button id="wizard-prev" class="btn-secondary hidden">
+                    <i class="fa-solid fa-arrow-left mr-2"></i> Back
+                </button>
+                <div class="ml-auto flex gap-3">
+                    <button id="modal-cancel" class="btn-secondary">Cancel</button>
+                    <button id="wizard-next" class="btn-primary bg-emerald-600 hover:bg-emerald-500">
+                        Next <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                    <button id="wizard-save" class="btn-primary bg-emerald-600 hover:bg-emerald-500 hidden">
+                        <i class="fa-solid fa-floppy-disk mr-2"></i> Save as Draft
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+    <script type="module" src="js/examiner.js"></script>
+</body>
+</html>

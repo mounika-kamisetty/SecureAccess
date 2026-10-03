@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Result - SecureAssess</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body class="bg-slate-900 min-h-screen">
+    
+    <!-- Navbar -->
+    <nav class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-indigo-500 text-xl"></i>
+                    <span class="font-bold text-lg text-white tracking-tight">SecureAssess</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="dashboard.html" class="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                    <button id="logout-btn" class="text-slate-400 hover:text-red-400 ml-2"><i class="fa-solid fa-sign-out-alt text-xl"></i></button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col items-center">
+        
+        <div id="loader" class="py-20 text-center hidden">
+            <i class="fa-solid fa-circle-notch fa-spin text-4xl text-indigo-500 mb-4"></i>
+            <p class="text-slate-400">Retrieving secure evaluation...</p>
+        </div>
+
+        <div id="result-content" class="w-full hidden">
+            <!-- Header -->
+            <div class="text-center mb-10 animate-fade-in">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-500/20 mb-4 border border-emerald-500/30">
+                    <i class="fa-solid fa-check text-emerald-400 text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-white mb-2">Examination Submitted</h1>
+                <p class="text-slate-400 text-lg" id="res-exam-title">Exam Title Here</p>
+                <p class="text-slate-500 text-sm mt-1" id="res-date">Submitted on: -</p>
+            </div>
+
+            <!-- Score Card -->
+            <div class="glass-panel p-8 border-indigo-500/30 glow-border mb-8 animate-fade-in text-center" style="animation-delay: 0.1s;">
+                <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Final Score</h2>
+                
+                <div class="flex justify-center items-end gap-2 mb-2">
+                    <span id="res-score" class="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">0</span>
+                    <span class="text-2xl text-slate-500 font-medium pb-2">/ <span id="res-max-score">0</span></span>
+                </div>
+                
+                <div class="mt-4 inline-block bg-slate-800/80 px-6 py-2 rounded-full border border-slate-700">
+                    <span class="text-lg font-bold text-white"><span id="res-percentage">0</span>%</span>
+                </div>
+            </div>
+
+            <!-- Detailed Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 animate-fade-in" style="animation-delay: 0.2s;">
+                
+                <!-- Integrity Report -->
+                <div class="glass-panel p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="p-2 bg-slate-800 rounded-lg"><i class="fa-solid fa-shield-virus text-slate-300"></i></div>
+                        <h3 class="text-lg font-bold text-white">Integrity Report</h3>
+                    </div>
+                    
+                    <div class="flex justify-between items-center py-3 border-b border-slate-800">
+                        <span class="text-slate-400">Risk Level</span>
+                        <span id="res-risk-badge" class="badge badge-success px-3 py-1 text-sm font-bold">LOW</span>
+                    </div>
+                    <div class="flex justify-between items-center py-3 border-b border-slate-800">
+                        <span class="text-slate-400">Risk Score</span>
+                        <span class="text-white font-mono" id="res-risk-score">0 / 100</span>
+                    </div>
+                    <div class="flex justify-between items-center py-3">
+                        <span class="text-slate-400">Status</span>
+                        <span class="text-slate-300 text-sm">Under Examiner Review</span>
+                    </div>
+                </div>
+                
+                <!-- Submission Details -->
+                <div class="glass-panel p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="p-2 bg-slate-800 rounded-lg"><i class="fa-solid fa-clock-rotate-left text-slate-300"></i></div>
+                        <h3 class="text-lg font-bold text-white">Time Details</h3>
+                    </div>
+                    
+                    <div class="flex justify-between items-center py-3 border-b border-slate-800">
+                        <span class="text-slate-400">Started</span>
+                        <span class="text-white text-sm" id="res-started">-</span>
+                    </div>
+                    <div class="flex justify-between items-center py-3 border-b border-slate-800">
+                        <span class="text-slate-400">Submitted</span>
+                        <span class="text-white text-sm" id="res-ended">-</span>
+                    </div>
+                    <div class="flex justify-between items-center py-3">
+                        <span class="text-slate-400">Duration</span>
+                        <span class="text-white text-sm font-mono" id="res-duration">-</span>
+                    </div>
+                </div>
+
+            </div>
+            
+            <div class="text-center animate-fade-in" style="animation-delay: 0.3s;">
+                <a href="dashboard.html" class="btn-primary inline-flex items-center gap-2 px-8 py-3">
+                    <i class="fa-solid fa-house"></i> Return to Dashboard
+                </a>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script type="module" src="js/result.js"></script>
+</body>
+</html>
